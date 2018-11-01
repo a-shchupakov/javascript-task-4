@@ -7,9 +7,10 @@
 const isStar = true;
 
 function isSubEvent(event, subEvent) {
-    return event.startsWith(subEvent) ||
-           event.endsWith(subEvent) ||
-           event.includes(`.${subEvent}.`);
+    return event.startsWith(`${subEvent}.`) ||
+           event.endsWith(`.${subEvent}`) ||
+           event.includes(`.${subEvent}.`) ||
+           event === subEvent;
 }
 
 /**
