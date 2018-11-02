@@ -46,8 +46,8 @@ function getEmitter() {
             const innerListenedEvents = this.listenedEvents; // Чтобы не возиться с this в forEach
 
             Object.keys(innerListenedEvents).forEach(function (eventName) {
-                const isEventMatches = isSubEvent(eventName, event);
-                if (isEventMatches) {
+                const doesEventMatch = isSubEvent(eventName, event);
+                if (doesEventMatch) {
                     innerListenedEvents[eventName]
                         .filter(subscription => subscription.context === context)
                         .forEach(function (subscription) {
