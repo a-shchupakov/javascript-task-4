@@ -95,9 +95,8 @@ function getEmitter() {
          * @returns {Object} this
          */
         several: function (event, context, handler, times) {
-            console.info(event, context, handler, times);
             // times = times <= 0 ? Infinity : times;
-            // this.on(event, context, handler, times);
+            this.on(event, context, handler, times);
 
             return this;
         },
@@ -112,20 +111,19 @@ function getEmitter() {
          * @returns {Object} this
          */
         through: function (event, context, handler, frequency) {
-            console.info(event, context, handler, frequency);
-            if (frequency > 0) {
-                // var counter = 0;
-                // const newHandler = function () {
-                //     if (counter++ % frequency === 0) {
-                //         handler.apply(this);
-                //     }
-                // };
-                // this.on(event, context, newHandler);
+            if (frequency) {
+                var counter = 0;
+                const newHandler = function () {
+                    if (counter++ % frequency === 0) {
+                        handler.apply(this);
+                    }
+                };
+                this.on(event, context, newHandler);
 
                 return this;
             }
 
-            // this.on(event, context, handler);
+            this.on(event, context, handler);
 
             return this;
         }
