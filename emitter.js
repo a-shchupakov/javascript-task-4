@@ -28,7 +28,7 @@ function getEmitter() {
          * @returns {Object} this
          */
         on: function (event, context, handler, repeat = Infinity) {
-            if (typeof this.listenedEvents[event] === 'undefined') {
+            if (!this.listenedEvents[event]) {
                 this.listenedEvents[event] = [];
             }
             this.listenedEvents[event].push({ context, handler, repeat });
@@ -43,18 +43,19 @@ function getEmitter() {
          * @returns {Object} this
          */
         off: function (event, context) {
-            const innerListenedEvents = this.listenedEvents; // Чтобы не возиться с this в forEach
-
-            Object.keys(innerListenedEvents).forEach(function (eventName) {
+            Object.keys(this.listenedEvents).forEach(function (eventName) {
                 const doesEventMatch = isSubEvent(eventName, event);
+
                 if (doesEventMatch) {
-                    innerListenedEvents[eventName]
-                        .filter(subscription => subscription.context === context)
-                        .forEach(function (subscription) {
-                            subscription.repeat = 0;
-                        });
+                    this.listenedEvents[eventName] = this.listenedEvents[eventName]
+                        .filter(subscription => subscription.context !== context);
+
+                    // Если на событие никто не подписан, удалим его целиком
+                    if (this.listenedEvents[eventName].length === 0) {
+                        this.listenedEvents[eventName] = undefined;
+                    }
                 }
-            });
+            }, this);
 
             return this;
         },
@@ -66,7 +67,7 @@ function getEmitter() {
          */
         emit: function (event) {
             const subscriptions = this.listenedEvents[event];
-            if (typeof subscriptions !== 'undefined') {
+            if (subscriptions) {
                 subscriptions
                     .filter(subscription => subscription.repeat > 0)
                     .forEach(function (subscription) {
@@ -110,7 +111,7 @@ function getEmitter() {
          */
         through: function (event, context, handler, frequency) {
             if (frequency > 0) {
-                var counter = 0;
+                let counter = 0;
                 const newHandler = function () {
                     if (counter++ % frequency === 0) {
                         handler.apply(this);
